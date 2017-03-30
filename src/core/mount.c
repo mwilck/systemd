@@ -456,7 +456,7 @@ static int mount_fix_timeouts(Mount *m) {
         Unit *other;
         Iterator i;
         usec_t u;
-        char *t = NULL;
+        _cleanup_free_ char *t = NULL;
         int r;
 
         assert(m);
@@ -515,10 +515,8 @@ static int mount_fix_timeouts(Mount *m) {
                 log_warning_unit(UNIT(m)->id,
                                  "Failed to parse timeout for %s, ignoring: %s",
                                  m->where, t);
-                free(t);
                 return r;
         }
-        free(t);
 
         SET_FOREACH(other, UNIT(m)->dependencies[UNIT_AFTER], i) {
                 if (other->type != UNIT_DEVICE)
