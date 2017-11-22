@@ -765,7 +765,6 @@ Features:
 
 * udev:
   - move to LGPL
-  - kill scsi_id
   - add trigger --subsystem-match=usb/usb_device device
   - reimport udev db after MOVE events for devices without dev_t
 
