@@ -16,6 +16,8 @@
 # along with systemd; If not, see <http://www.gnu.org/licenses/>.
 
 rules = files('''
+        55-storage-detection.rules
+        59-storage-content.rules
         60-block.rules
         60-cdrom_id.rules
         60-drm.rules
