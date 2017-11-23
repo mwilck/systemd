@@ -70,7 +70,7 @@ KERNEL!="st*[0-9]|nst*[0-9]", GOTO="storage_hardware_end"
 
 # These rules will overwrite ID_SERIAL and ID_BUS even if previously assigned by
 # 55-scsi-sg3_utils.rules, for backward compatibility
-  
+
 ATTRS{ieee1394_id}=="?*", ENV{ID_SERIAL}="$attr{ENV{ID_SERIAL}", ENV{ID_BUS}="ieee1394"
 SUBSYSTEMS=="usb", ATTRS{serial}=="?*", IMPORT{builtin}="usb_id"
 
