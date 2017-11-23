@@ -40,7 +40,7 @@ KERNEL=="sd*[0-9]", ENV{ID_IEEE1394}=="?*", SYMLINK+="disk/by-id/ieee1394-$env{I
 # MMC
 KERNEL=="mmcblk[0-9]", SUBSYSTEMS=="mmc", ENV{ID_NAME}=="?*", ENV{ID_SERIAL}=="?*", \
   SYMLINK+="disk/by-id/mmc-$env{ID_NAME}_$env{ID_SERIAL}"
-KERNEL=="mmcblk[0-9]p[0-9]*", ENV{ID_NAME}=="?*", ENV{ID_SERIAL}=="?*",
+KERNEL=="mmcblk[0-9]p[0-9]*", ENV{ID_NAME}=="?*", ENV{ID_SERIAL}=="?*", \
   SYMLINK+="disk/by-id/mmc-$env{ID_NAME}_$env{ID_SERIAL}-part%n"
 
 # UBI-MTD
