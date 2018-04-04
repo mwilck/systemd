@@ -1677,11 +1677,21 @@ int main(int argc, char *argv[]) {
 
         if (arg_children_max == 0) {
                 cpu_set_t cpu_set;
+                unsigned long mem_limit;
 
                 arg_children_max = 8;
 
                 if (sched_getaffinity(0, sizeof(cpu_set), &cpu_set) == 0)
                         arg_children_max += CPU_COUNT(&cpu_set) * 64;
+
+                /*
+                 * Udev workers consume typically 50-100MiB virtual memory.
+                 * On systems with lots of CPUs and relatively low memory,
+                 * that may easily cause OOM. This limits the number of workers
+                 * to 8 per GiB memory.
+                 */
+                mem_limit = physical_memory() / (128L*1024L*1024L);
+                arg_children_max = MIN(arg_children_max, mem_limit);
 
                 log_debug("set children_max to %u", arg_children_max);
         }
