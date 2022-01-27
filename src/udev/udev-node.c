@@ -509,7 +509,7 @@ static int device_get_devpath_by_devnum(sd_device *dev, char **ret) {
 int udev_node_update(sd_device *dev, sd_device *dev_old) {
         _cleanup_free_ char *filename = NULL;
         const char *devnode, *devlink;
-        int r;
+        int r, rc = 0;
 
         assert(dev);
         assert(dev_old);
@@ -523,6 +523,25 @@ int udev_node_update(sd_device *dev, sd_device *dev_old) {
 
                 (void) device_get_device_id(dev, &id);
                 log_device_debug(dev, "Handling device node '%s', devnum=%s", devnode, strna(id));
+        }
+
+        /* create/update symlinks, add symlinks to name index */
+        FOREACH_DEVICE_DEVLINK(dev, devlink) {
+                r = link_update(dev, devlink, /* add = */ true);
+                if (r < 0)
+                        log_device_warning_errno(dev, r,
+                                                 "Failed to create/update device symlink '%s', ignoring: %m",
+                                                 devlink);
+        }
+
+        r = device_get_devpath_by_devnum(dev, &filename);
+        if (r < 0)
+                rc = log_device_debug_errno(dev, r, "Failed to get device path: %m");
+        else {
+                /* always add /dev/{block,char}/$major:$minor */
+                r = node_symlink(dev, devnode, filename);
+                if (r < 0)
+                        rc = log_device_warning_errno(dev, r, "Failed to create device symlink '%s': %m", filename);
         }
 
         /* update possible left-over symlinks */
@@ -542,25 +561,7 @@ int udev_node_update(sd_device *dev, sd_device *dev_old) {
                                                  devlink);
         }
 
-        /* create/update symlinks, add symlinks to name index */
-        FOREACH_DEVICE_DEVLINK(dev, devlink) {
-                r = link_update(dev, devlink, /* add = */ true);
-                if (r < 0)
-                        log_device_warning_errno(dev, r,
-                                                 "Failed to create/update device symlink '%s', ignoring: %m",
-                                                 devlink);
-        }
-
-        r = device_get_devpath_by_devnum(dev, &filename);
-        if (r < 0)
-                return log_device_debug_errno(dev, r, "Failed to get device path: %m");
-
-        /* always add /dev/{block,char}/$major:$minor */
-        r = node_symlink(dev, devnode, filename);
-        if (r < 0)
-                return log_device_warning_errno(dev, r, "Failed to create device symlink '%s': %m", filename);
-
-        return 0;
+        return rc;
 }
 
 int udev_node_remove(sd_device *dev) {
