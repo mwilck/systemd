@@ -744,6 +744,12 @@ static int event_queue_insert(Manager *manager, sd_device *dev) {
                                                 e->seqnum);
                                 return 0;
                         }
+                        if (action == SD_DEVICE_REMOVE && IN_SET(e->action, SD_DEVICE_ADD, SD_DEVICE_CHANGE)) {
+                                log_device_info(dev,
+                                                "Discarding event (SEQNUM=%" PRIu64 ") for removed device.",
+                                                e->seqnum);
+                                event_free(e);
+                        }
                 }
         }
 
