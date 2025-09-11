@@ -951,6 +951,22 @@ static int event_queue_insert(Manager *manager, sd_device *dev) {
                 event_clear_dependencies(e);
         }
 
+        if (IN_SET(event->action, SD_DEVICE_ADD, SD_DEVICE_REMOVE, SD_DEVICE_CHANGE)) {
+                LIST_FOREACH_BACKWARDS(event, e, prev) {
+                        if (e->state != EVENT_QUEUED || !streq(event->devpath, e->devpath))
+                                continue;
+                        if (event->action == e->action) {
+                                log_device_debug(
+                                                dev,
+                                                "Event (SEQNUM=%" PRIu64
+                                                ") is a duplicate of (SEQNUM=%" PRIu64 "), discarding.",
+                                                event->seqnum,
+                                                e->seqnum);
+                                return 0;
+                        }
+                }
+        }
+
         LIST_INSERT_AFTER(event, manager->events, prev, event);
         if (prev == manager->last_event)
                 manager->last_event = event;
