@@ -400,6 +400,14 @@ static void timer_enter_waiting(Timer *t, bool time_change) {
                          * this was triggered, schedule the job based relative to that. If we don't,
                          * just start from the activation time or realtime. */
 
+                        log_unit_debug(UNIT(t), "%s: realtime: %s, last trigger: %s, inactive_enter timer: %s, inactive enter trigger: %s, inactive_exit: %s, UNITS_LOAD: %s",
+                                       __func__,
+                                       FORMAT_TIMESTAMP(ts.realtime),
+                                       FORMAT_TIMESTAMP(t->last_trigger.realtime),
+                                       FORMAT_TIMESTAMP(trigger->inactive_enter_timestamp.realtime),
+                                       FORMAT_TIMESTAMP(UNIT(t)->inactive_enter_timestamp.realtime),
+                                       FORMAT_TIMESTAMP(UNIT(t)->inactive_exit_timestamp.realtime),
+                                       FORMAT_TIMESTAMP(UNIT(t)->manager->timestamps[MANAGER_TIMESTAMP_UNITS_LOAD].realtime));
                         if (t->defer_reactivation &&
                             dual_timestamp_is_set(&trigger->inactive_enter_timestamp)) {
                                 if (dual_timestamp_is_set(&t->last_trigger))
