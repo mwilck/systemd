@@ -416,7 +416,9 @@ static void timer_enter_waiting(Timer *t, bool time_change) {
                                  * work (see below). */
                                 if (t->last_trigger.monotonic < boot_monotonic)
                                         rebase_after_boot_time = true;
-                        } else if (dual_timestamp_is_set(&UNIT(t)->inactive_exit_timestamp))
+                        } else if (dual_timestamp_is_set(&UNIT(t)->inactive_exit_timestamp) &&
+                                   UNIT(t)->manager->timestamps[MANAGER_TIMESTAMP_UNITS_LOAD].realtime >
+                                   UNIT(t)->inactive_exit_timestamp.realtime)
                                 b = UNIT(t)->inactive_exit_timestamp.realtime;
                         else {
                                 b = ts.realtime;
